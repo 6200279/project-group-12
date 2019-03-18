@@ -33,8 +33,8 @@ public class SolarSystem {
         Planet Jupiter = new Planet("Jupiter", 0.01899, -81.7, 0, 0, -0.01307);
      //   Planet Titan2= new Planet( "Titan2",0.0000013452,-142.4 + 0.125,0,0,   )
 
-        Planet Titan = new Planet("Titan", 0.0000013452,-142.4 +0.125, 0,0, -0.1352- 0.000964 );
-        Planet Saturn = new Planet("Saturn", 0.00568, -142.4, 0, 0, -0.1352 );
+        Planet Titan = new Planet("Titan", 0.0000013452,-142.4 +0.125, 0,0, -0.0968- 0.000964 );
+        Planet Saturn = new Planet("Saturn", 0.00568, -142.4, 0, 0, -0.0968 );
 
         Planet Uranus = new Planet("Uranus", 0.000866, +287.2, 0);
         Planet Neptune = new Planet("Neptune", 0.00103, +449.9, 0);
