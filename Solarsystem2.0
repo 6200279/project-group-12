@@ -33,16 +33,16 @@ public class SolarSystem {
         Planet Jupiter = new Planet("Jupiter", 0.01899, -81.7, 0, 0, -0.01307);
      //   Planet Titan2= new Planet( "Titan2",0.0000013452,-142.4 + 0.125,0,0,   )
 
-        Planet Titan = new Planet("Titan", 0.0000013452,-142.4 +0.125, 0,0, -0.1352- 0.000964 );
-        Planet Saturn = new Planet("Saturn", 0.00568, -142.4, 0, 0, -0.1352 );
+        Planet Titan = new Planet("Titan", 0.0000013452,-142.4 -0.125, 0,0, -0.009652177812123745 );
+        Planet Saturn = new Planet("Saturn", 0.00568, -142.4, 0, 0, -0.009652177812123745 );
 
         Planet Uranus = new Planet("Uranus", 0.000866, +287.2, 0);
         Planet Neptune = new Planet("Neptune", 0.00103, +449.9, 0);
 
 
-        Planet probe = new Planet("Probe", 5.7,15.2,0);
+        Planet Probe = new Planet("Probe", 5.7,15.2,0);
         list2 = new ArrayList<Probe>();
-        list.add(probe);
+
 
 
         list = new ArrayList<Planet>();
@@ -55,12 +55,14 @@ public class SolarSystem {
         list.add(Saturn);
         list.add(Uranus);
         list.add(Neptune);
-        list.add(Titan);
+      //  list.add(Titan);
+
+
 
         for (Planet p : list) {
             if (p.name != "Sun")
                 p.velY = Math.sqrt(G * Sun.mass / Math.abs(p.x - Sun.x));
-            System.out.println("v = " + p.velY);
+            System.out.println(p.name+ " = " + p.velY);
             if (p.x > Sun.x)
                 p.velY = -p.velY;
         }
@@ -68,7 +70,7 @@ public class SolarSystem {
 
 //		list.add(Earth);
         Moon.velY = Earth.velY + 0.000964;
-        Titan.velY= Saturn.velY + 0.000964;
+        Titan.velY= Saturn.velY - 0.00558;
         list.add(Moon);
         list.add(Titan);
         getAccelerations();
@@ -81,9 +83,12 @@ public class SolarSystem {
 
             // TODO movement of probe still needs to be done correctly (20km/s)
             if (p1.name == "Probe"){
-            //    p1.x +=  // x coordinate
-                // p1.y +=  // y coordinate
-               // p1.setPosition(p1.x,p1.y);
+               p1.x += timestep * (probespeed + timestep * p1.accX/2);
+               p1.y += timestep * (probespeed + timestep * p1.accY/2);
+
+
+                p1.setPosition(p1.x,p1.y);
+
             }
             else{
             // update position according to dr = v·dt + a·dt²/2
@@ -277,5 +282,7 @@ class SolarGUI extends JPanel implements Runnable, MouseMotionListener, MouseLis
     public void keyReleased(KeyEvent e) {}
 
 }
+
+
 
 
