@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 
 public class SolarSystem {
 
-    private final double probespeed= 2;
+    private final double probespeed= 0.02;
     static final double G = 0.000667;           //universal gravitational constant
     ArrayList<Planet> list = new ArrayList<Planet>();
 
@@ -40,8 +40,9 @@ public class SolarSystem {
         Planet Neptune = new Planet("Neptune", 0.00103, +449.9, 0);
 
 
-        Planet Probe = new Planet("Probe", 5.7,15.2,0);
+        Probe Probe = new Probe("Probe", 5.7,15.2,0.0,0,0);
         list2 = new ArrayList<Probe>();
+        list2.add(Probe);
 
 
 
@@ -55,6 +56,7 @@ public class SolarSystem {
         list.add(Saturn);
         list.add(Uranus);
         list.add(Neptune);
+        //list.add(Probe);
       //  list.add(Titan);
 
 
@@ -77,20 +79,28 @@ public class SolarSystem {
 
     }
 
+    void moveProbe() {
+        for (Probe p1 : list2){
+
+                p1.x += timestep * (probespeed + timestep * p1.accX/2);
+                p1.y += timestep * (probespeed + timestep * p1.accY/2);
+
+
+                p1.setPosition(p1.x,p1.y);
+                System.out.println(p1.x + " / " + p1.y);
+
+            }
+        }
+
+
+
 
     void move() {
         for (Planet p1 : list) {
 
             // TODO movement of probe still needs to be done correctly (20km/s)
-            if (p1.name == "Probe"){
-               p1.x += timestep * (probespeed + timestep * p1.accX/2);
-               p1.y += timestep * (probespeed + timestep * p1.accY/2);
 
 
-                p1.setPosition(p1.x,p1.y);
-
-            }
-            else{
             // update position according to dr = v·dt + a·dt²/2
 
             p1.x += timestep * (p1.velX + timestep * p1.accX / 2);
@@ -100,7 +110,7 @@ public class SolarSystem {
             p1.old_accY = p1.accY;
             p1.old_accX = p1.accX;
             p1.setPosition(p1.x, p1.y);
-            }
+
 
 
 
@@ -111,7 +121,7 @@ public class SolarSystem {
 
         double dx, dy, dz, D, A;
         for (Planet p1 : list) {
-            if(p1.name != "Probe") {
+
                 p1.accX = 0;
                 p1.accY = 0;
                 for (Planet p2 : list) {
@@ -126,15 +136,15 @@ public class SolarSystem {
                 }
             }
         }
-    }
+
 
     void accelerate() {
         for (Planet p1 : list) {
-            if(p1.name != "Probe") {
+
                 // update velocity according to dv=(a+old a) * dt/2
                 p1.velX += (p1.accX + p1.old_accX) * timestep / 2;
                 p1.velY += (p1.accY + p1.old_accY) * timestep / 2;
-            }
+
         }
     }
 
@@ -142,7 +152,7 @@ public class SolarSystem {
         move();
         getAccelerations();
         accelerate();
-       // moveprobe();
+        moveProbe();;
     }
 }
 
@@ -194,7 +204,9 @@ class SolarGUI extends JPanel implements Runnable, MouseMotionListener, MouseLis
               //  TODO line is not being drawn fix later (fixed)
                 g.drawLine((int)(offX+pt0.x*scale), (int)(offY+pt0.y*scale), (int)(offX+pt1.x*scale), (int)(offY+pt1.y*scale));
             }
-        }    for(Probe u : s.list2) {
+        }
+
+        for(Probe u : s.list2) {
             if (i != 0) diameter = 5;
             int a = (int) (offX - diameter / 2 + u.x * scale);
             int b = (int) (offY - diameter / 2 + u.y * scale);
@@ -203,7 +215,14 @@ class SolarGUI extends JPanel implements Runnable, MouseMotionListener, MouseLis
             if (u.name == "Probe"){
                 g.setColor(Color.MAGENTA);
 
+            } g.drawString(u.name, a, b);
+            for(int k=1; k<u.positions.size(); k++){
+                Point pt0 = u.positions.get(k-1);
+                Point pt1 = u.positions.get(k);
+                //  TODO line is not being drawn fix later (fixed)
+                g.drawLine((int)(offX+pt0.x*scale), (int)(offY+pt0.y*scale), (int)(offX+pt1.x*scale), (int)(offY+pt1.y*scale));
             }
+
 
         }
     }
@@ -282,7 +301,5 @@ class SolarGUI extends JPanel implements Runnable, MouseMotionListener, MouseLis
     public void keyReleased(KeyEvent e) {}
 
 }
-
-
 
 
