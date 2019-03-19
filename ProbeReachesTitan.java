@@ -254,7 +254,7 @@ class SolarGUI extends JPanel implements Runnable, MouseMotionListener, MouseLis
     public void run() {
         // TODO Auto-generated method stub
         while(true){
-            s.timestep = 20;
+            s.timestep = 5;
             s.updatePositions();
             repaint();
             setBackground(Color.BLACK);
