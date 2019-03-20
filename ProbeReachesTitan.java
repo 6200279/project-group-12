@@ -42,7 +42,7 @@ public class SolarSystem {
 //        Planet Neptune = new Planet("Neptune", 0.00103, +449.9, 0);
 
 
-        Planet Probe = new Planet("Probe", 0.00000000000000009, -14.6, 0.578, -0.0000616, -0.072512467);
+        Planet Probe = new Planet("Probe", 0.00000000000000009, -14.6, 0.578, -0.0000616, -0.072512469);
          // second accuracy stage reached at velX = -0.00006 / velY = -0.072521
         // third accuracy stage reached at velx = -0.000061 / velY = -0.072513
         // fourth accuracy stage reachted at velX = -0.0000616 / velY = -0.072512469
@@ -144,16 +144,17 @@ public class SolarSystem {
         }
     }
 
-    void updatePositions() {
-        move();
+    void updatePositions(double startTime) {
+		move();
         getAccelerations();
         accelerate();
         //moveprobe();
-        collion();
+        collion(startTime);
+		//countYear(startTime);
     }
 
 
-    void collion(){
+    void collion(double startTime){
         for (Planet p1 : list){
             if (p1.name== "Probe"){
              //   System.out.println(p1.x +"/"+ p1.y);
@@ -165,6 +166,8 @@ public class SolarSystem {
                             System.out.println("Coordinates Titan : " + p2.x + "/" + p2.y );
                             System.out.println("delta X : " + Math.abs((p1.x-p2.x)));
                             System.out.println("delta Y : "+ Math.abs((p1.y-p2.y)) );
+							
+							
 
 
                            // System.out.println("Probe has crashed into titan ");
@@ -174,7 +177,9 @@ public class SolarSystem {
                                    System.out.println(" accuracy stage 3 reached");
                                    if  ( p1.x>= (p2.x-0.00025) && p1.x <= (p2.x+0.00025) && p1.y>= (p2.y- 0.00025) && p1.y <= (p2.y+ 0.00025)) {
                                        System.out.println(" accuracy stage 4 reached ");
-                                       System.out.println(" you have killed titan ");
+										double stopTime = System.currentTimeMillis();
+										double elapsedTime = (stopTime - startTime)/(1000*(316/timestep))*365;
+									   System.out.println(" you have killed titan after " + elapsedTime+" days");
                                    }
 
                                }
@@ -186,8 +191,20 @@ public class SolarSystem {
             }
         }
     }
-}
 
+
+boolean countYear(){
+        for (Planet p1 : list){
+            if (p1.name== "Earth"){
+                        if ( p1.x >= -14.513 && p1.x <= -14.497){
+							//System.out.println("One year");
+							return true;
+							
+            }
+        }
+    }return false;
+}
+}
 class SolarGUI extends JPanel implements Runnable, MouseMotionListener, MouseListener, KeyListener {
     int offX=400, offY=400;
     int oldOffX=40, oldOffY=40;
@@ -253,12 +270,18 @@ class SolarGUI extends JPanel implements Runnable, MouseMotionListener, MouseLis
     @Override
     public void run() {
         // TODO Auto-generated method stub
+		double startTime = System.currentTimeMillis();
         while(true){
-            s.timestep = 5;
-            s.updatePositions();
+            s.timestep = 20;
+            s.updatePositions(startTime);
             repaint();
             setBackground(Color.BLACK);
 
+			/*if(s.collion()){
+				long stopTime = System.currentTimeMillis();
+				long elapsedTime = stopTime - startTime;
+				System.out.println("Total time: "+elapsedTime+"ms");
+			}*/
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
