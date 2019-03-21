@@ -23,6 +23,9 @@ public class SolarSystem {
     ArrayList<Probe> list2 = new ArrayList<Probe>();
 
     double timestep = 0;
+	
+	double landingTime = 0;
+	boolean landed = false;
 
     public SolarSystem() {
 
@@ -212,9 +215,10 @@ public class SolarSystem {
                                     System.out.println(" accuracy stage 3 reached");
                                     if (p1.x >= (p2.x - 0.00025) && p1.x <= (p2.x + 0.00025) && p1.y >= (p2.y - 0.00025) && p1.y <= (p2.y + 0.00025)) {
                                         System.out.println(" accuracy stage 4 reached ");
+										landed = true;
                                         double stopTime = System.currentTimeMillis();
-                                        double elapsedTime = (stopTime - startTime) / (1000 * (316 / timestep)) * 365;
-                                        System.out.println(" you have killed titan after " + elapsedTime + " days");
+                                        landingTime = (stopTime - startTime) / (1000 * (316 / timestep)) * 365;
+                                        System.out.println(" you have killed titan after " + landingTime + " days");
                                     }
 
                                 }
@@ -295,22 +299,30 @@ public class SolarSystem {
 			Font myFont = new Font ("Arial", 1, 14);
 			g.setFont(myFont);
 			g.setColor(Color.WHITE);
-			g.drawString(toString(), 50, 50);
+			g.drawString(timer(), 50, 50);
+			
+			if(s.landed){
+				g.drawString(landingTimer(), 50, 75);
+			}
 			
         }
 		
-		public String toString(){
+		public String timer(){
 			double currentTime = System.currentTimeMillis();
             double elapsedTime = (currentTime - startTime) / (1000 * (316 / s.timestep)) * 365;
 			
 			return "Time: " + (int)(elapsedTime) + " days";
+		}
+		
+		public String landingTimer(){
+			return "Landed on Titan after: " + (int)(s.landingTime) + " days";
 		}
 
         @Override
         public void run() {
             // TODO Auto-generated method stub
             while (true) {
-                s.timestep = 5;
+                s.timestep = 20;
                 s.updatePositions(startTime);
                 repaint();
                 setBackground(Color.BLACK);
