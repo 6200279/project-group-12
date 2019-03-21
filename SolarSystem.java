@@ -51,7 +51,7 @@ public class SolarSystem {
 //        Planet Neptune = new Planet("Neptune", 0.00103, +449.9, 0);
 
 
-        Planet Probe = new Planet("Probe", 0.00000000000000009, -14.6, 0.578, -0.0000616, -0.072512467);
+    Planet Probe = new Planet("Probe", 0.00000000000000009, -14.6, 0.578, -0.00006275, -0.072585040);
        
 //For timestep = 20:
 	   // second accuracy stage reached at velX = -0.00006 / velY = -0.072521
