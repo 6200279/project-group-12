@@ -41,11 +41,11 @@ public class SolarSystem {
 //		Planet Earth = new Planet("Earth",0.00005974, 14.9,0);
         Planet Mars = new Planet("Mars", 0.00000642, 2.3, 23.337, 0.023155, -0.00405);
         Planet Jupiter = new Planet("Jupiter", 0.01899, -23.487, -75.996, -0.0123, 0.003305);
-        //   Planet Titan2= new Planet( "Titan2",0.0000013452,-142.4 + 0.125,0,0,   )
+       
 
         Planet Titan = new Planet("Titan", 0.0000013452, 35.754 - 0.125, -146.157, -0.00887, -0.00224);
         Planet Saturn = new Planet("Saturn", 0.00568, 35.754, -146.157, -0.00887, -0.00224);
-        // Planet Titan2 = new Planet("Titan",0.00568, 35.754, -146.157, -0.00887, -0.00224);
+        
 
 //        Planet Uranus = new Planet("Uranus", 0.000866, +287.2, 0);
 //        Planet Neptune = new Planet("Neptune", 0.00103, +449.9, 0);
@@ -78,16 +78,9 @@ public class SolarSystem {
 
 
 
-/*        for (Planet p : list) {
-            if (p.name != "Sun")
-                p.velY = Math.sqrt(G * Sun.mass / Math.abs(p.x - Sun.x));
-            System.out.println(p.name+ " = " + p.velY);
-            if (p.x > Sun.x)
-                p.velY = -p.velY;
-        }*/
 
 
-//		list.add(Earth);
+
         Moon.velY = Earth.velY + 0.000964;
         Titan.velY = Saturn.velY - 0.00558;
         list.add(Moon);
@@ -101,13 +94,7 @@ public class SolarSystem {
 
         for (Planet p1 : list) {
 
-            // TODO movement of probe still needs to be done correctly (20km/s)
-        /*    if (p1.name == "Probe"){
-               p1.x += timestep * (probespeed + timestep * p1.accX/2);
-               p1.y += timestep * (probespeed + timestep * p1.accY/2);
-                p1.setPosition(p1.x,p1.y);
-            }
-            else{*/
+          
             // update position according to dr = v·dt + a·dt²/2
 
             p1.x += timestep * (p1.velX + timestep * p1.accX / 2);
@@ -162,7 +149,7 @@ public class SolarSystem {
         move();
         getAccelerations();
         accelerate();
-        //moveprobe();
+        
         collion(startTime);
         if (collionstop() == true) {
 
@@ -186,7 +173,7 @@ public class SolarSystem {
     boolean collionstop() {
         for (Planet p1 : list) {
             if (p1.name == "Probe") {
-                //   System.out.println(p1.x +"/"+ p1.y);
+                
                 for (Planet p2 : list) {
                     if (p2.name == "Titan") {
 
@@ -205,7 +192,7 @@ public class SolarSystem {
     void collion(double startTime) {
         for (Planet p1 : list) {
             if (p1.name == "Probe") {
-                //   System.out.println(p1.x +"/"+ p1.y);
+               
                 for (Planet p2 : list) {
                     if (p2.name == "Titan") {
                         if (p1.x >= (p2.x - 0.25) && p1.x <= (p2.x + 0.25) && p1.y >= (p2.y - 0.25) && p1.y <= (p2.y + 0.25)) {
@@ -218,7 +205,7 @@ public class SolarSystem {
 							System.out.println("Probe velocity: " + probeVel);
 
 
-                            // System.out.println("Probe has crashed into titan ");
+                            
                             if (p1.x >= (p2.x - 0.025) && p1.x <= (p2.x + 0.025) && p1.y >= (p2.y - 0.025) && p1.y <= (p2.y + 0.025)) {
                                 System.out.println(" accuracy stage 2 reached");
                                 if (p1.x >= (p2.x - 0.0025) && p1.x <= (p2.x + 0.0025) && p1.y >= (p2.y - 0.0025) && p1.y <= (p2.y + 0.0025)) {
@@ -263,8 +250,7 @@ public class SolarSystem {
         public void paintComponent(Graphics g) {
             int i = 0;
             int diameter = 5000;
-//		double centraY = s.list.get(0).y;
-//		double centraX = s.list.get(0).x;
+
 			
 			
             for (Planet p : s.list) {
@@ -341,7 +327,7 @@ public class SolarSystem {
 
         @Override
         public void run() {
-            // TODO Auto-generated method stub
+            
             while (true) {
                 s.timestep = 20;
                 s.updatePositions(startTime);
@@ -351,17 +337,14 @@ public class SolarSystem {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
+                    
                     e.printStackTrace();
                 }
             }
         }
 
-        /*  private Image backgroundImage = ImageIO.read(new File("spacebackground.jpeg"));
-          public void paint( Graphics g ) {
-              super.paint(g);
-        *///      g.drawImage(backgroundImage, 0, 0, null);
-        //}
+          
+	    
         public static void main(String[] args) {
             JFrame f = new JFrame("Solar System");
             f.setBounds(0, 0, 800, 800);
