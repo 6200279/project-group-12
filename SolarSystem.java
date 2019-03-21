@@ -419,6 +419,10 @@ public class SolarSystem {
         public void keyPressed(KeyEvent e) {
             if (e.getKeyChar() == 'q') scale += 1;
             if (e.getKeyChar() == 'a') scale -= 1;
+			if (e.getKeyCode() == 38) ASSY += 10;
+			if (e.getKeyCode() == 39) ASSX -= 10;
+			if (e.getKeyCode() == 40) ASSY -= 10;
+			if (e.getKeyCode() == 37) ASSX += 10;
         }
 
         @Override
