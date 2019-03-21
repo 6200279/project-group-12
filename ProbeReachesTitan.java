@@ -96,10 +96,7 @@ public class SolarSystem {
         /*    if (p1.name == "Probe"){
                p1.x += timestep * (probespeed + timestep * p1.accX/2);
                p1.y += timestep * (probespeed + timestep * p1.accY/2);
-
-
                 p1.setPosition(p1.x,p1.y);
-
             }
             else{*/
             // update position according to dr = v·dt + a·dt²/2
@@ -238,6 +235,7 @@ public class SolarSystem {
         double scale = 3;
         int fstX, fstY;
         SolarSystem s;
+		double startTime = System.currentTimeMillis();
 
         public SolarGUI() {
             s = new SolarSystem();
@@ -253,6 +251,8 @@ public class SolarSystem {
             int diameter = 5000;
 //		double centraY = s.list.get(0).y;
 //		double centraX = s.list.get(0).x;
+			
+			
             for (Planet p : s.list) {
                 if (i != 0) diameter = 5;
                 int x = (int) (ASSX - diameter / 2 + p.x * scale);
@@ -292,14 +292,25 @@ public class SolarSystem {
                 }
 
             }
+			Font myFont = new Font ("Arial", 1, 14);
+			g.setFont(myFont);
+			g.setColor(Color.WHITE);
+			g.drawString(toString(), 50, 50);
+			
         }
+		
+		public String toString(){
+			double currentTime = System.currentTimeMillis();
+            double elapsedTime = (currentTime - startTime) / (1000 * (316 / s.timestep)) * 365;
+			
+			return "Time: " + (int)(elapsedTime) + " days";
+		}
 
         @Override
         public void run() {
             // TODO Auto-generated method stub
-            double startTime = System.currentTimeMillis();
             while (true) {
-                s.timestep = 20;
+                s.timestep = 5;
                 s.updatePositions(startTime);
                 repaint();
                 setBackground(Color.BLACK);
@@ -314,7 +325,6 @@ public class SolarSystem {
         }
 
         /*  private Image backgroundImage = ImageIO.read(new File("spacebackground.jpeg"));
-
           public void paint( Graphics g ) {
               super.paint(g);
         *///      g.drawImage(backgroundImage, 0, 0, null);
@@ -383,4 +393,3 @@ public class SolarSystem {
         }
 
     }
-
