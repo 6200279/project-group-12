@@ -26,6 +26,8 @@ public class SolarSystem {
 	
 	double landingTime = 0;
 	boolean landed = false;
+	
+	double probeVel;
 
     public SolarSystem() {
 
@@ -50,11 +52,15 @@ public class SolarSystem {
 
 
         Planet Probe = new Planet("Probe", 0.00000000000000009, -14.6, 0.578, -0.0000616, -0.072512467);
-        // second accuracy stage reached at velX = -0.00006 / velY = -0.072521
+       
+//For timestep = 20:
+	   // second accuracy stage reached at velX = -0.00006 / velY = -0.072521
         // third accuracy stage reached at velx = -0.000061 / velY = -0.072513
         // fourth accuracy stage reachted at velX = -0.0000616 / velY = -0.072512469
-        list2 = new ArrayList<Probe>();
-        ;
+       
+
+	   list2 = new ArrayList<Probe>();
+        
 
 
         list = new ArrayList<Planet>();
@@ -114,7 +120,9 @@ public class SolarSystem {
             p1.setPosition(p1.x, p1.y);
             //}
 
-
+			if(p1.name == "Probe"){
+				probeVel = Math.abs(p1.velX) + Math.abs(p1.velY);
+			}
         }
     }
 
@@ -206,6 +214,8 @@ public class SolarSystem {
                             System.out.println("Coordinates Titan : " + p2.x + "/" + p2.y);
                             System.out.println("delta X : " + Math.abs((p1.x - p2.x)));
                             System.out.println("delta Y : " + Math.abs((p1.y - p2.y)));
+							//double probeVel = p1.velX + p1.velY;
+							System.out.println("Probe velocity: " + probeVel);
 
 
                             // System.out.println("Probe has crashed into titan ");
@@ -302,8 +312,10 @@ public class SolarSystem {
 			g.drawString(timer(), 50, 50);
 			
 			if(s.landed){
-				g.drawString(landingTimer(), 50, 75);
+				g.drawString(landingTimer(), 50, 100);
 			}
+			
+			g.drawString(probeSpeed(), 50, 75);
 			
         }
 		
@@ -316,6 +328,15 @@ public class SolarSystem {
 		
 		public String landingTimer(){
 			return "Landed on Titan after: " + (int)(s.landingTime) + " days";
+		}
+		
+		public String probeSpeed(){
+			double probeVelo = s.probeVel * 1000;
+			if(s.landed){
+				return "Probe's final speed: " + (int)(probeVelo) + " km/s";
+			}else{
+			return "Probe speed: " + (int)(probeVelo) + " km/s";
+			}
 		}
 
         @Override
