@@ -115,7 +115,7 @@ public class TitanLander {
     double touchdown_velocity = v+a*time_to_touchdown;
     System.out.println("Velocity at touchdown: "+touchdown_velocity + "m/sec");
 
-    // Print a suitable assessment of the landing.
+    // Print a suitable assessment of the landing. (landing calibration)
 
     if(touchdown_velocity <= 0.5)
         System.out.println("Perfect landing!");
@@ -132,7 +132,7 @@ public class TitanLander {
     else
         System.out.println("Maybe they'll name the crater after you!");
 
-    // Print a final message and quit.
+  
 
 }
 }
