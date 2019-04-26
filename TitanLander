@@ -25,7 +25,7 @@ public class TitanLander {
     double time_to_touchdown = 0; 	//secs from now to touchdown
     double time_to_fuel_out = 0; 	//secs from now to fuel gone
 
-    double thrust = 30;	//percentage of thrust (0-100) set by user
+    double thrust = 30;	//percentage of thrust 
     double a = 0; 		//acceleration caused by thrust plus gravity
 
     // Set up the initial configuration at time t=0
