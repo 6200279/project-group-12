@@ -1,4 +1,5 @@
 
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -24,7 +25,7 @@ public class LunarLander {
 
 
         // TODO find a way to make the thrusters level out at the right speed (openloop controler) calibrate
-        // TODO find a way to input thrust every time slice( feedback controler )
+
     void freefall(){
         Scanner in = new Scanner(System.in);
 
@@ -72,8 +73,8 @@ public class LunarLander {
 
              // System.out.println("Enter Thrust (%)");
              thrust = getThrust(h);
-             for (Rover p1 : list) {
-                 p1.setPosition(200, h);
+             for (Rover p : list) {
+                 p.setPosition(2, h/1000);
              }
 
 
@@ -302,16 +303,16 @@ public class LunarLander {
  public double getThrust(double height){
 
         if (height >= 100000){
-            return 10;
+            return 0;
         }
         else if (height >= 50000){
-            return 20;
-        }
-        else if(height >= 25000){
             return 50;
         }
-        else if(height >= 10000 ){
-            return 80;
+        else if(height >= 25000){
+            return 100;
+        }
+        else if(height >= 10000 ) {
+            return 100;
         }
         else
             return 100;
@@ -335,6 +336,7 @@ public class LunarLander {
         p.setVisible(true);
         System.out.println("please enter 1 for feedback controler");
         System.out.println("please enter 2 for Openloop controler");
+
     }
 
     }
@@ -356,7 +358,7 @@ public class LunarLander {
         addKeyListener(this);
     }
 
-    public void paintComponet(Graphics g) {
+    public void paintComponent(Graphics g) {
         int i = 0;
         int diameter = 5000;
 
@@ -378,8 +380,8 @@ public class LunarLander {
             for (int k = 1; k < p.positions.size(); k++) {
                 Point pt0 = p.positions.get(k - 1);
                 Point pt1 = p.positions.get(k);
-                //  TODO line is not being drawn fix later (fixed)1
                 g.drawLine((int) (ASSX + pt0.x * scale), (int) (ASSY + pt0.y * scale), (int) (ASSX + pt1.x * scale), (int) (ASSY + pt1.y * scale));
+
             }
         }
     }
@@ -459,3 +461,4 @@ public class LunarLander {
      public void keyReleased(KeyEvent e) {
      }
 }
+
