@@ -12,6 +12,7 @@ import java.util.Scanner;
 
 public class LunarLander {
     ArrayList<Rover> list = new ArrayList<Rover>();
+    Wind wind;
     public LunarLander(){
 
         list = new ArrayList<Rover>();
@@ -66,6 +67,12 @@ public class LunarLander {
      double v = INITIAL_VELOCITY;
      double f = INITIAL_FUEL;
      double t = 0;
+     double x = 2;
+     double oldH;
+     double almostH;
+
+     wind = new Wind(2, TIME_SLICE);
+     double[] windVector = new double[2];
 
 
 
@@ -74,7 +81,7 @@ public class LunarLander {
              // System.out.println("Enter Thrust (%)");
              thrust = getThrust(h);
              for (Rover p : list) {
-                 p.setPosition(2, h/1000);
+                 p.setPosition(x, h/1000);
              }
 
 
@@ -82,6 +89,7 @@ public class LunarLander {
 
              System.out.println("Time: " + t + " secs");
              System.out.println("Height: " + h + " m");
+             System.out.println("Change from initial axis: " + (x - 2) + " m");
              System.out.println("Descent rate: " + v + " m/sec");
              System.out.println("Fuel left: " + f + " kg");
              System.out.println();
@@ -139,7 +147,11 @@ public class LunarLander {
              if (!touchdown) {
                  t = t + TIME_SLICE;
                  f = f - TIME_SLICE * MAX_BURN_RATE * thrust / 100.0;
-                 h = h - TIME_SLICE * v - a * TIME_SLICE * TIME_SLICE / 2;
+                 oldH = h;
+                 almostH = h - TIME_SLICE * v - a * TIME_SLICE * TIME_SLICE / 2;
+                 windVector = wind.addWind(oldH, almostH);
+                 x += windVector[0];
+                 h = windVector[1];
                  v = v + TIME_SLICE * a;
              }
 
@@ -201,6 +213,12 @@ public class LunarLander {
         double v = INITIAL_VELOCITY;
         double f = INITIAL_FUEL;
         double t = 0;
+        double x = 2;
+        double oldH;
+        double almostH;
+
+        wind = new Wind(2, TIME_SLICE);
+        double[] windVector = new double[2];
 
 
         thrust = 5;
@@ -213,6 +231,7 @@ public class LunarLander {
 
         System.out.println("Time: " + t + " secs");
         System.out.println("Height: " + h + " m");
+        System.out.println("Change from initial axis: " + (x - 2) + " m");
         System.out.println("Descent rate: " + v + " m/sec");
         System.out.println("Fuel left: " + f + " kg");
         System.out.println("Thrust: " + thrust + "%");
@@ -261,7 +280,11 @@ public class LunarLander {
         if (!touchdown) {
             t = t + TIME_SLICE;
             f = f - TIME_SLICE * MAX_BURN_RATE * thrust / 100.0;
-            h = h - TIME_SLICE * v - a * TIME_SLICE * TIME_SLICE / 2;
+            oldH = h;
+            almostH = h - TIME_SLICE * v - a * TIME_SLICE * TIME_SLICE / 2;
+            windVector = wind.addWind(oldH, almostH);
+            x += windVector[0];
+            h = windVector[1];
             v = v + TIME_SLICE * a;
         }
 
