@@ -19,11 +19,12 @@ public class Wind {
     }
 
     public void generateWind(){
-        if(dimension == 2) {
+        //generate direction using unit vector
+        if(dimension == 2) {    
             direction[0] = -1.0;
             direction[1] = 0.0;
         }
-        windVelocity = 27.8;   //Wind speed 100 km/h
+        windVelocity = 27.8;   //Wind speed in m/s
     }
 
     public void setWindVector(){
