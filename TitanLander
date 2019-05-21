@@ -1,138 +1,609 @@
-public class TitanLander {
-    public static void main(String[] args) {
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.IOException;
 
-        // TODO find a way to make the thrusters level out at the right speed (openloop controler)
-        // TODO find a way to input thrust every time slice( feedback controler )
+import java.lang.*;
 
+import java.util.ArrayList;
+import java.util.Scanner;
 
+public class LunarLander {
+    private double thrust = 0;
+    private final double GRAVITY  = 1.352;
+    private final double MAX_THRUST = 200.0;        //maximum engine thrust in m/sec^2
+    private final double MAX_BURN_RATE = 10.0;    //fuel burn rate at max thrust kg/sec
+    private final double TIME_SLICE = 5.0;        //time between thrust choices in secs
 
-    final double GRAVITY = 1.352; 		//gravity in m/sec^2
-    final double MAX_THRUST = 3.0; 		//maximum engine thrust in m/sec^2
-    final double MAX_BURN_RATE = 10.0; 	//fuel burn rate at max thrust kg/sec
-    final double TIME_SLICE = 5.0; 		//time between thrust choices in secs
+    private final double INITIAL_HEIGHT = 4000;        //Starting height in meters
+    private final double INITIAL_VELOCITY = 8000.0;    //Starting descent rate (m/sec)
+    private final double INITIAL_FUEL = 45000.0;        //Starting fuel in kg
 
-    final double INITIAL_HEIGHT = 1000000;		//Starting height in meters
-    final double INITIAL_VELOCITY = 8000.0;	//Starting descent rate (m/sec)
-    final double INITIAL_FUEL = 45000.0;		//Starting fuel in kg
+    private final double INFINITY = 1E10;    //a time very far in the future
+    private final double SMALL = 0.001;    //acceleration below this will be called 0
 
-    final double INFINITY = 1E10; 	//a time very far in the future
-    final double SMALL = 0.001; 	//acceleration below this will be called 0
+    private double TERMINAL_VELOCITY = 9.6 ; // m/s
+    private boolean touchdown = false;        //set to true on landing
+    private boolean fuel_out = false;        //set to true when fuel used up
+    private double time_to_touchdown = 0;    //secs from now to touchdown
+    private double time_to_fuel_out = 0;
 
-
-
-    boolean touchdown = false; 		//set to true on landing
-    boolean fuel_out = false; 		//set to true when fuel used up
-    double time_to_touchdown = 0; 	//secs from now to touchdown
-    double time_to_fuel_out = 0; 	//secs from now to fuel gone
-
-    double thrust = 30;	//percentage of thrust 
-    double a = 0; 		//acceleration caused by thrust plus gravity
+    private double a = 0;        //acceleration caused by thrust plus gravity
 
     // Set up the initial configuration at time t=0
 
-    double h = INITIAL_HEIGHT;
-    double v = INITIAL_VELOCITY;
-    double f = INITIAL_FUEL;
-    double t = 0;
+    private double h = INITIAL_HEIGHT;
+    private double v = INITIAL_VELOCITY;
+    private double f = INITIAL_FUEL;
+    private double t = 0;//secs from now to fuel gone
+    private double x = 2;
+    private double oldH;
+    private double almostH;
 
 
 
-    while (!touchdown) {
-        thrust += 3;
 
+    Wind wind;
 
-        // Display the current situation
-
-        System.out.println("Time: "+t+" secs");
-        System.out.println("Height: "+h+" m");
-        System.out.println("Descent rate: "+v+" m/sec");
-        System.out.println("Fuel left: "+f+" kg");
-        System.out.println();
-
-
-/*
-        boolean validResponse = false;
-        while (!validResponse) {                    //TODO valid reponse check feedback controller
-            System.out.print("Thrust:" + thrust);
-
-            if (thrust>=0.0 && thrust<=100.0)
-                validResponse = true;
-            else
-                System.out.println("Only values 0 to 100 will work.");
-        }
-        System.out.println();
-*/
-        // Calculate the acceleration, and how long fuel will last
-
-        a = (GRAVITY - MAX_THRUST*thrust/100.0);
-
-        time_to_fuel_out = f/(MAX_BURN_RATE*thrust/100.0);
-
-        // calculate time_to_touchdown assuming fuel never runs out
-
-        double discrim = v*v+2*h*a;
-        if(discrim<0)
-            time_to_touchdown = INFINITY;
-        else if(Math.abs(a) < SMALL)
-            time_to_touchdown = h/v;
-        else
-            time_to_touchdown = (v-Math.sqrt(discrim))/-a;
-
-        // Handle the case when fuel will run out first
-
-        if (time_to_fuel_out<time_to_touchdown
-                && time_to_fuel_out<=TIME_SLICE) {
-
-            System.out.println("Out of fuel! Free fall!");
-            fuel_out = true;
-            t = t + time_to_fuel_out;
-            f = 0.0;
-            h = h - time_to_fuel_out*v - a*time_to_fuel_out*time_to_fuel_out/2.0;
-            v = v+a*time_to_fuel_out;
-            a = GRAVITY; //gravity never sleeps!
-            time_to_touchdown = (v-Math.sqrt(v*v+2*h*a))/-a;
-        }
-        // end if (fuel runs out case)
+    ArrayList<Rover> list = new ArrayList<Rover>();
 
 
 
-        touchdown = fuel_out || time_to_touchdown<TIME_SLICE;
+    public LunarLander(){
 
-        // If not, advance everything one time period and keep going
-
-        if(!touchdown) {
-            t = t + TIME_SLICE;
-            f = f - TIME_SLICE*MAX_BURN_RATE*thrust/100.0;
-            h = h - TIME_SLICE*v - a*TIME_SLICE*TIME_SLICE/2;
-            v = v + TIME_SLICE*a;
-        }
+        list = new ArrayList<Rover>();
+        Rover LunarRover = new Rover("LunarRover",200,0,1000000,0,0);
+        list.add(LunarRover);
 
     }
 
-    // We're down! Print out the final numbers.
 
-    System.out.println("Touchdown at time "+(t+time_to_touchdown));
-    double touchdown_velocity = v+a*time_to_touchdown;
-    System.out.println("Velocity at touchdown: "+touchdown_velocity + "m/sec");
+    double timestep = 0 ;
 
-    // Print a suitable assessment of the landing. (landing calibration)
 
-    if(touchdown_velocity <= 0.5)
-        System.out.println("Perfect landing!");
-    else if(touchdown_velocity <= 1.0)
-        System.out.println("Soft landing");
-    else if(touchdown_velocity <= 2.0)
-        System.out.println("Good landing");
-    else if(touchdown_velocity <= 5.0)
-        System.out.println("Hard landing");
-    else if(touchdown_velocity <= 10.0)
-        System.out.println("Lander damaged");
-    else if(touchdown_velocity <= 20.0)
-        System.out.println("No survivors");
-    else
-        System.out.println("Maybe they'll name the crater after you!");
+        // TODO find a way to make the thrusters level out at the right speed (openloop controler) calibrate
 
-  
+    void freefall( double starttime){
 
+
+
+        Scanner in = new Scanner(System.in);
+
+        int k = in.nextInt();
+        if ( k == 1 ){
+            feedback();
+        }
+     else if (k ==2 ) {
+            Openloop();
+        }
+        else if (k == 3){
+            GameControler();
+        }
+        else System.out.println("invalid number entered");
+    }
+ void feedback() {
+
+
+     wind = new Wind(2, TIME_SLICE);
+     double[] windVector = new double[2];
+
+     while (!touchdown) {
+         if (v >= TERMINAL_VELOCITY) {
+             v = TERMINAL_VELOCITY;
+         }
+
+         // System.out.println("Enter Thrust (%)");
+         thrust = getThrust(h);
+         for (Rover p : list) {
+             p.setPosition(x, h / 1000);
+         }
+
+
+         // Display the current situation
+
+         System.out.println("Time: " + t + " secs");
+         System.out.println("Height: " + h + " m");
+         System.out.println("Descent rate: " + v + " m/sec");
+         System.out.println("Change from initial axis: " + (x - 2) + " m");
+         System.out.println("Fuel left: " + f + " kg");
+         System.out.println("Thrust percentage: " + thrust + "%");
+         System.out.println();
+
+
+         System.out.println();
+
+         // Calculate the acceleration, and how long fuel will last
+
+         a = (GRAVITY - MAX_THRUST * thrust / 100.0);
+
+         time_to_fuel_out = f / (MAX_BURN_RATE * thrust / 100.0);
+
+         // calculate time_to_touchdown assuming fuel never runs out
+
+         double discrim = v * v + 2 * h * a;
+         if (discrim < 0)
+             time_to_touchdown = INFINITY;
+         else if (Math.abs(a) < SMALL)
+             time_to_touchdown = h / v;
+         else
+             time_to_touchdown = (v - Math.sqrt(discrim)) / -a;
+
+         // Handle the case when fuel will run out first
+
+         if (time_to_fuel_out < time_to_touchdown
+                 && time_to_fuel_out <= TIME_SLICE) {
+
+             System.out.println("Out of fuel! Free fall!  ");
+             fuel_out = true;
+             t = t + time_to_fuel_out;
+             f = 0.0;
+             h = h - time_to_fuel_out * v - a * time_to_fuel_out * time_to_fuel_out / 2.0;
+             v = v + a * time_to_fuel_out;
+             a = GRAVITY; //gravity never sleeps!
+             time_to_touchdown = (v - Math.sqrt(v * v + 2 * h * a)) / -a;
+         }
+         // end if (fuel runs out case)
+
+
+         touchdown = fuel_out || time_to_touchdown < TIME_SLICE;
+
+         // If not, advance everything one time period and keep going
+
+         if (!touchdown) {
+             t = t + TIME_SLICE;
+             f = f - TIME_SLICE * MAX_BURN_RATE * thrust / 100.0;
+             oldH = h;
+             almostH = h - TIME_SLICE * v - a * TIME_SLICE * TIME_SLICE / 2;
+             windVector = wind.addWind(oldH, almostH);
+             x += windVector[0];
+             h = windVector[1];
+             v = v + TIME_SLICE * a;
+         }
+     }
+
+
+         // We're down! Print out the final numbers.
+
+         System.out.println("Touchdown at time " + (t + time_to_touchdown));
+         double touchdown_velocity = v + a * time_to_touchdown;
+         System.out.println("Velocity at touchdown: " + touchdown_velocity + "m/sec");
+
+         // Print a suitable assessment of the landing.
+
+         if (touchdown_velocity <= 0.5)
+             System.out.println("Perfect landing!");
+         else if (touchdown_velocity <= 1.0)
+             System.out.println("Soft landing");
+         else if (touchdown_velocity <= 2.0)
+             System.out.println("Good landing");
+         else if (touchdown_velocity <= 5.0)
+             System.out.println("Hard landing");
+         else if (touchdown_velocity <= 10.0)
+             System.out.println("Lander damaged");
+         else if (touchdown_velocity <= 20.0)
+             System.out.println("No survivors");
+         else
+             System.out.println("Maybe they'll name the crater after you!");
+
+
+     }
+
+
+
+    void Openloop(){
+
+        wind = new Wind(2, TIME_SLICE);
+        double[] windVector = new double[2];
+
+
+
+        while (!touchdown) {
+
+            // System.out.println("Enter Thrust (%)");
+            thrust += 2;
+            if (thrust >=100){
+                thrust = 100;
+            }
+            if( v <= 100){
+                thrust = 20;
+            }
+            for (Rover p : list) {
+                p.setPosition(x, h/1000);
+
+            }
+
+
+            // Display the current situation
+
+            System.out.println("Time: " + t + " secs");
+            System.out.println("Height: " + h + " m");
+            System.out.println("Descent rate: " + v + " m/sec");
+            System.out.println("Change from initial axis: " + (x - 2) + " m");
+            System.out.println("Fuel left: " + f + " kg");
+            System.out.println("Thrust percentage: "+ thrust + "%");
+            System.out.println();
+
+
+
+
+            System.out.println();
+
+            // Calculate the acceleration, and how long fuel will last
+
+            a = (GRAVITY - MAX_THRUST * thrust / 100.0);
+
+            time_to_fuel_out = f / (MAX_BURN_RATE * thrust / 100.0);
+
+            // calculate time_to_touchdown assuming fuel never runs out
+
+            double discrim = v * v + 2 * h * a;
+            if (discrim < 0)
+                time_to_touchdown = INFINITY;
+            else if (Math.abs(a) < SMALL)
+                time_to_touchdown = h / v;
+            else
+                time_to_touchdown = (v - Math.sqrt(discrim)) / -a;
+
+            // Handle the case when fuel will run out first
+
+            if (time_to_fuel_out < time_to_touchdown
+                    && time_to_fuel_out <= TIME_SLICE) {
+
+                System.out.println("Out of fuel! Free fall! ");
+                fuel_out = true;
+                t = t + time_to_fuel_out;
+                f = 0.0;
+                h = h - time_to_fuel_out * v - a * time_to_fuel_out * time_to_fuel_out / 2.0;
+                v = v + a * time_to_fuel_out;
+                a = GRAVITY; //gravity never sleeps!
+                time_to_touchdown = (v - Math.sqrt(v * v + 2 * h * a)) / -a;
+            }
+            // end if (fuel runs out case)
+
+
+            touchdown = fuel_out || time_to_touchdown < TIME_SLICE;
+
+            // If not, advance everything one time period and keep going
+            if (!touchdown) {
+                t = t + TIME_SLICE;
+                f = f - TIME_SLICE * MAX_BURN_RATE * thrust / 100.0;
+                oldH = h;
+                almostH = h - TIME_SLICE * v - a * TIME_SLICE * TIME_SLICE / 2;
+                windVector = wind.addWind(oldH, almostH);
+                x += windVector[0];
+                h = windVector[1];
+                v = v + TIME_SLICE * a ;
+            }
+
+
+        }
+
+        // We're down! Print out the final numbers.
+
+        System.out.println("Touchdown at time " + (t + time_to_touchdown));
+        double touchdown_velocity = v + a * time_to_touchdown;
+        System.out.println("Velocity at touchdown: " + touchdown_velocity + "m/sec");
+
+        // Print a suitable assessment of the landing.
+
+        if (touchdown_velocity <= 0.5)
+            System.out.println("Perfect landing! ");
+        else if (touchdown_velocity <= 1.0)
+            System.out.println("Soft landing ");
+        else if (touchdown_velocity <= 2.0)
+            System.out.println("Good landing  ");
+        else if (touchdown_velocity <= 5.0)
+            System.out.println("Hard landing ");
+        else if (touchdown_velocity <= 10.0)
+            System.out.println("Lander damaged ");
+        else if (touchdown_velocity <= 20.0)
+            System.out.println("No survivors ");
+        else
+            System.out.println("Maybe they'll name the crater after you! ");
+
+
+
+    }
+
+    void GameControler(){
+        wind = new Wind(2, TIME_SLICE);
+        double[] windVector = new double[2];
+
+        Scanner in = new Scanner(System.in);
+
+        while (!touchdown) {
+
+            System.out.println("Enter Thrust (%)");
+             thrust = in.nextDouble();
+
+             if ( v >= TERMINAL_VELOCITY ){
+                 v = TERMINAL_VELOCITY;
+             }
+
+            for (Rover p : list) {
+                p.setPosition(2, h/1000);
+            }
+
+
+            // Display the current situation
+
+            System.out.println("Time: " + t + " secs");
+            System.out.println("Height: " + h + " m");
+            System.out.println("Descent rate: " + v + " m/sec");
+            System.out.println("Fuel left: " + f + " kg");
+            System.out.println("Thrust percentage: "+ thrust + "%");
+            System.out.println();
+
+
+            boolean validResponse = false;
+            while (!validResponse) {                    //TODO valid reponse check feedback controller
+                System.out.println("Thrust: " + thrust + "%");
+
+                if (thrust >= 0.0 && thrust <= 100.0)
+                    validResponse = true;
+                else
+                    System.out.println("Only values 0 to 100 will work.");
+                break;
+            }
+            System.out.println();
+
+            // Calculate the acceleration, and how long fuel will last
+
+            a = (GRAVITY - MAX_THRUST * thrust / 100.0);
+
+            time_to_fuel_out = f / (MAX_BURN_RATE * thrust / 100.0);
+
+            // calculate time_to_touchdown assuming fuel never runs out
+
+            double discrim = v * v + 2 * h * a;
+            if (discrim < 0)
+                time_to_touchdown = INFINITY;
+            else if (Math.abs(a) < SMALL)
+                time_to_touchdown = h / v;
+            else
+                time_to_touchdown = (v - Math.sqrt(discrim)) / -a;
+
+            // Handle the case when fuel will run out first
+
+            if (time_to_fuel_out < time_to_touchdown
+                    && time_to_fuel_out <= TIME_SLICE) {
+
+                System.out.println("Out of fuel! Free fall!");
+                fuel_out = true;
+                t = t + time_to_fuel_out;
+                f = 0.0;
+                h = h - time_to_fuel_out * v - a * time_to_fuel_out * time_to_fuel_out / 2.0;
+                v = v + a * time_to_fuel_out;
+                a = GRAVITY; //gravity never sleeps!
+                time_to_touchdown = (v - Math.sqrt(v * v + 2 * h * a)) / -a;
+            }
+            // end if (fuel runs out case)
+
+
+            touchdown = fuel_out || time_to_touchdown < TIME_SLICE;
+
+            // If not, advance everything one time period and keep going
+
+            if (!touchdown) {
+                t = t + TIME_SLICE;
+                f = f - TIME_SLICE * MAX_BURN_RATE * thrust / 100.0;
+                oldH = h;
+                almostH = h - TIME_SLICE * v - a * TIME_SLICE * TIME_SLICE / 2;
+                windVector = wind.addWind(oldH, almostH);
+                x += windVector[0];
+                h = windVector[1];
+                v = v + TIME_SLICE * a;
+            }
+
+
+        }
+
+        // We're down! Print out the final numbers.
+
+        System.out.println("Touchdown at time " + (t + time_to_touchdown));
+        double touchdown_velocity = v + a * time_to_touchdown;
+        System.out.println("Velocity at touchdown: " + touchdown_velocity + "m/sec");
+
+        // Print a suitable assessment of the landing.
+
+        if (touchdown_velocity <= 0.5)
+            System.out.println("Perfect landing!");
+        else if (touchdown_velocity <= 1.0)
+            System.out.println("Soft landing   ");
+        else if (touchdown_velocity <= 2.0)
+            System.out.println("Good landing   ");
+        else if (touchdown_velocity <= 5.0)
+            System.out.println("Hard landing   ");
+        else if (touchdown_velocity <= 10.0)
+            System.out.println("Lander damaged   ");
+        else if (touchdown_velocity <= 20.0)
+            System.out.println("No survivors");
+        else
+            System.out.println("Maybe they'll name the crater after you!");
+
+
+    }
+
+    public boolean keyThrust(KeyEvent e){
+        if(e.getKeyCode() == 49)
+            return true ;
+    return false ; }
+
+
+
+ public double getThrust(double height){
+
+        if (height >= 100){
+            return 100;
+        }
+        else if (height >= 50){
+            return 100;
+        }
+        else if(height >= 25){
+            return 100 ;
+        }
+        else if (height >= 10){
+            return 100;
+        }
+        else if(height == 0 ) {
+            return 0;
+        }
+        else
+            return 0;
+
+
+ }
+ public void setThrust( int thrust){
+        this.thrust = thrust;
+
+ }
+
+
+    public static void main(String[] args) throws IOException {
+        JFrame p = new JFrame("TitanLander");
+        p.setBounds(0, 0, 800, 800);
+        p.setBackground(Color.black);
+
+
+        p.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        LanderGUI m = new LanderGUI();
+        p.add(m);
+
+        new Thread(m).start();
+       p.setVisible(true);
+        System.out.println("please enter 1 for feedback controler");
+        System.out.println("please enter 2 for Openloop controler");
+        System.out.println("please enter 3 for game controler");
+
+    }
+
+    }
+
+ class LanderGUI extends JPanel implements Runnable, MouseMotionListener, MouseListener, KeyListener {
+    int ASSX = 400, ASSY = 400 ;
+    int oldASSX = 40, oldASSY = 40;
+    double scale = 3 , timestep;
+    int fstX, fstY;
+    LunarLander  s;
+    double startTime = System.currentTimeMillis();
+
+    public LanderGUI() {
+        s = new LunarLander();
+        setFocusable(true);
+        requestFocus();
+        addMouseMotionListener(this);
+        addMouseListener(this);
+        addKeyListener(this);
+    }
+
+    public void paintComponent(Graphics g) {
+        int i = 0;
+        int diameter = 5000;
+
+        for (Rover p : s.list) {
+            if (i != 0) diameter = 5;
+            int x = (int) (ASSX - diameter / 2 + p.x * scale);
+            int y = (int) (ASSY - diameter / 2 + p.y * scale);
+            g.fillOval(x, y, diameter, diameter);
+
+            if (p.name == "LunarRover") {
+                g.setColor(Color.YELLOW);
+            }
+
+            g.drawString(p.name, x, y);
+
+
+            i++;
+
+            for (int k = 1; k < p.positions.size(); k++) {
+                Point pt0 = p.positions.get(k - 1);
+                Point pt1 = p.positions.get(k);
+                g.drawLine((int) (ASSX + pt0.x * scale), (int) (ASSY + pt0.y * scale), (int) (ASSX + pt1.x * scale), (int) (ASSY + pt1.y * scale));
+
+            }
+        }
+    }
+
+
+
+
+
+    @Override
+    public void run() {
+
+        // TODO Auto-generated method stub
+        while (true) {
+
+            s.timestep = 1;
+            s.freefall(startTime);
+
+            repaint();
+            setBackground(Color.black);
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+     @Override
+     public void mouseDragged(MouseEvent e) {
+         ASSX = oldASSX + e.getX() - fstX;
+         ASSY = oldASSY + e.getY() - fstY;
+     }
+
+     @Override
+     public void mouseMoved(MouseEvent e) {
+     }
+
+     @Override
+     public void mouseClicked(MouseEvent e) {
+     }
+
+     @Override
+     public void mousePressed(MouseEvent e) {
+         fstX = e.getX();
+         fstY = e.getY();
+     }
+
+     @Override
+     public void mouseReleased(MouseEvent e) {
+         oldASSX = ASSX;
+         oldASSY = ASSY;
+     }
+
+     @Override
+     public void mouseEntered(MouseEvent e) {
+     }
+
+     @Override
+     public void mouseExited(MouseEvent e) {
+     }
+
+     @Override
+     public void keyTyped(KeyEvent e) {
+     }
+
+     @Override
+     public void keyPressed(KeyEvent e) {
+         if (e.getKeyChar() == 'q') scale += 1;
+         if (e.getKeyChar() == 'a') scale -= 1;
+         if (e.getKeyCode() == 38) ASSY += 10;
+         if (e.getKeyCode() == 39) ASSX -= 10;
+         if (e.getKeyCode() == 40) ASSY -= 10;
+         if (e.getKeyCode() == 37) ASSX += 10;
+
+     }
+
+
+     @Override
+     public void keyReleased(KeyEvent e) {
+     }
 }
-}
+
+
+
