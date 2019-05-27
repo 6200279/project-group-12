@@ -15,18 +15,18 @@ public class LunarLander {
     private double rightThrust;
 
     private final double GRAVITY  = 1.352;
-    private final double MAX_THRUST = 10.0;        //maximum engine thrust in m/sec^2
+    private final double MAX_THRUST = 20.0;        //maximum engine thrust in m/sec^2
     private final double MAX_BURN_RATE = 10.0;    //fuel burn rate at max thrust kg/sec
-    private final double TIME_SLICE = 2.0;        //time between thrust choices in secs
+    private final double TIME_SLICE = 1;        //time between thrust choices in secs
 
     private final double INITIAL_HEIGHT = 4000;        //Starting height in meters
-    private final double INITIAL_VELOCITY = 8000.0;    //Starting descent rate (m/sec)
-    private final double INITIAL_FUEL = 45000.0;        //Starting fuel in kg
+    private final double INITIAL_VELOCITY = 9.6;    //Starting descent rate (m/sec)
+    private final double INITIAL_FUEL = 1200.0;        //Starting fuel in kg
 
     private final double INFINITY = 1E10;    //a time very far in the future
     private final double SMALL = 0.001;    //acceleration below this will be called 0
 
-    private double TERMINAL_VELOCITY = 9.6 ; // m/s
+    private double TERMINAL_VELOCITY = 9.2 ; // terminal velocity cassini earth 50,2 m/s terminal velocity is about 5,5 times less on titan
     private boolean touchdown = false;        //set to true on landing
     private boolean fuel_out = false;        //set to true when fuel used up
     private double time_to_touchdown = 0;    //secs from now to touchdown
@@ -100,7 +100,7 @@ public class LunarLander {
          }
 
          // System.out.println("Enter Thrust (%)");
-         thrust = getThrust(height);
+         thrust = getThrust(height,velocity);
 
          leftThrust = getLeftThrust(x);
          rightThrust = getRightThrust(x);
@@ -117,6 +117,8 @@ public class LunarLander {
          System.out.println("Change from initial axis: " + (x - 2) + " m");
          System.out.println("Fuel left: " + fuel + " kg");
          System.out.println("Thrust percentage: " + thrust + "%");
+         System.out.println("left thrust percentage: "+ leftThrust+ "%");
+         System.out.println("Right thrust percentage: " + rightThrust+ "%");
          System.out.println();
 
 
@@ -166,8 +168,9 @@ public class LunarLander {
              oldH = height;
              almostH = height - TIME_SLICE * velocity - a * TIME_SLICE * TIME_SLICE / 2;
              windVector = wind.addWind(oldH, almostH);
-             x += (windVector[0] -l +r );
-             height = windVector[1];
+             x += (windVector[0] -r +l );
+             //height = windVector[1];
+             height = height - TIME_SLICE*velocity - a*TIME_SLICE*TIME_SLICE/2;
              velocity = velocity + TIME_SLICE * a;
          }
      }
@@ -176,7 +179,7 @@ public class LunarLander {
          // We're down! Print out the final numbers.
 
          System.out.println("Touchdown at time " + (t + time_to_touchdown));
-         double touchdown_velocity = velocity + a * time_to_touchdown;
+         double touchdown_velocity = velocity; //+ a * time_to_touchdown;
          System.out.println("Velocity at touchdown: " + touchdown_velocity + "m/sec");
 
          // Print a suitable assessment of the landing.
@@ -444,40 +447,53 @@ public class LunarLander {
 
 
 
- public double getThrust(double height){
+ public double getThrust(double height, double velocity){
 
 
+    while(velocity >= 0 && height <= 100) {
 
-        if (height >= 100){
-            return 15;
-        }
-        else if (height >= 50){
+        if (height < 0)
+                return 0;
+         else if (height >= 100) {
+             return 0;
+         } else if (height >= 50) {
+             return 5;
+         } else if (height >= 25) {
             return 10;
-        }
-        else if(height >= 25){
-            return 20;
-        }
-        else if (height >= 10){
-            return 20;
-        }
-        else if(height == 0 ) {
-            return 0;
-        }
-        else
-            return 0;
 
 
- }
+         }
+         else if (height >= 15){
+             return 15;
+        }
+         else if (height >= 10) {
+             return 20;
+         } else if (height >= 5) {
+             return 15;
+         } else if (height >= 2) {
+             return 9;
+         } else if (height == 0) {
+             return 0;
+         }
+
+     }
+
+
+ return  0;}
 
  public double getLeftThrust(double x ){
-        if(x < -1000){
-            return 50;
+        if(x < -100){
+            return 5;
         }
-        else if (x < - 250){
-            return 20;
+        else if (x < - 25){
+            return 2.5;
         }
+        else if ( x <- 15){
+            return 1.5;
+        }
+
         else if  (x < 0) {
-            return 10;
+            return 1.6;
         }
 
             else return 0;
@@ -486,12 +502,19 @@ public class LunarLander {
 
  }
     public double getRightThrust(double x ) {
-        if (x > 1000) {
-            return 50;
-        } else if (x > 250) {
-            return 20;
-        } else if (x > 0) {
-            return 10;
+        if (x > 100) {
+            return 5;
+        }
+
+        else if (x > 25) {
+            return 2.5 ;
+
+        }
+        else if (x>15){
+            return 1.6;
+        }
+            else if (x > 0) {
+            return 1.5;
         } else return 0;
 
     }
@@ -646,6 +669,3 @@ public class LunarLander {
      public void keyReleased(KeyEvent e) {
      }
 }
-
-
-
