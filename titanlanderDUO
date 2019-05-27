@@ -212,15 +212,15 @@ public class LunarLander {
 
 
         while (!touchdown) {
+            if (velocity >= TERMINAL_VELOCITY) {
+                velocity = TERMINAL_VELOCITY;
+            }
 
             // System.out.println("Enter Thrust (%)");
-            thrust += 2;
-            if (thrust >=100){
-                thrust = 100;
-            }
-            if( velocity <= 100){
-                thrust = 20;
-            }
+            thrust = openloopthrust(t);
+            leftThrust = getLeftThrust(x);
+            rightThrust = getRightThrust(x);
+
             for (Rover p : list) {
                 p.setPosition(x, height/1000);
 
@@ -278,7 +278,8 @@ public class LunarLander {
 
 
             touchdown = fuel_out || time_to_touchdown < TIME_SLICE;
-
+            l = (MAX_THRUST * leftThrust);
+            r = (MAX_THRUST * rightThrust);
             // If not, advance everything one time period and keep going
             if (!touchdown) {
                 t = t + TIME_SLICE;
@@ -286,8 +287,8 @@ public class LunarLander {
                 oldH = height;
                 almostH = height - TIME_SLICE * velocity - a * TIME_SLICE * TIME_SLICE / 2;
                 windVector = wind.addWind(oldH, almostH);
-                x += (windVector[0] - l + r);
-                height = windVector[1];
+                x += (windVector[0] - r + l);
+                height = height - TIME_SLICE*velocity - a*TIME_SLICE*TIME_SLICE/ 2.0 ;
                 velocity = velocity + TIME_SLICE * a ;
             }
 
@@ -444,6 +445,33 @@ public class LunarLander {
         if(e.getKeyCode() == 49)
             return true ;
     return false ; }
+
+
+    public double openloopthrust(double t){
+        if (t >=395 && t<= 400){
+            return 5;
+        }
+        else if (t>=400 && t<= 403){
+            return 10;
+        }
+        else if (t == 404){
+            return 15;
+        }
+        else if (t == 405){
+            return 20;
+        }
+        else if (t == 406 || t == 407){
+            return 15;
+        }
+        else if (t>= 409 && t<= 411){
+            return 9;
+        }
+        else if (t == 413 || t== 414){
+            return 9;
+        }
+        else return 0;
+
+    }
 
 
 
@@ -669,3 +697,4 @@ public class LunarLander {
      public void keyReleased(KeyEvent e) {
      }
 }
+
