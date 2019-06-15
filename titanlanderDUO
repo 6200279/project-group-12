@@ -9,7 +9,9 @@ import java.lang.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+
 public class LunarLander {
+
     private double thrust = 0;
     private double leftThrust;
     private double rightThrust;
@@ -66,18 +68,15 @@ public class LunarLander {
 
 
     double timestep = 0 ;
-        // TODO left right thrustes finish
 
-        // TODO find a way to make the thrusters level out at the right speed (openloop controler) calibrate
-
-    void freefall( double starttime){
+    void freefall(){
 
 
 
         Scanner in = new Scanner(System.in);
 
         int k = in.nextInt();
-        if ( k == 1 ){
+        if ( k == 1 ) {
             feedback();
         }
      else if (k ==2 ) {
@@ -155,9 +154,10 @@ public class LunarLander {
              time_to_touchdown = (velocity - Math.sqrt(velocity * velocity+ 2 * height * a)) / -a;
          }
          // end if (fuel runs out case)
+         boolean heighttouch = height <2.5;
 
 
-         touchdown = fuel_out || time_to_touchdown < TIME_SLICE;
+         touchdown = fuel_out || time_to_touchdown < TIME_SLICE || heighttouch  ;
 
          // If not, advance everything one time period and keep going
          l = (MAX_THRUST * leftThrust);
@@ -199,8 +199,8 @@ public class LunarLander {
          else
              System.out.println("Maybe they'll name the crater after you!");
 
-
-     }
+ launch();
+    }
 
 
 
@@ -318,8 +318,13 @@ public class LunarLander {
         else
             System.out.println("Maybe they'll name the crater after you! ");
 
+        System.out.println(" ");
+        System.out.println(" ");
+        System.out.println(" ");
 
 
+
+    launch();
     }
 
     void GameControler(){
@@ -441,10 +446,10 @@ public class LunarLander {
 
     }
 
-    public boolean keyThrust(KeyEvent e){
-        if(e.getKeyCode() == 49)
-            return true ;
-    return false ; }
+
+
+
+
 
 
     public double openloopthrust(double t){
@@ -550,6 +555,112 @@ public class LunarLander {
         this.thrust = thrust;
 
  }
+    void launch() {
+        System.out.println(" ");
+        System.out.println(" ");
+        boolean titanorbit = false;
+        double orbitheight = 10000;
+        height = 0;
+        velocity = 0;
+        t = 0;
+        x = 0;
+        thrust = 0;
+
+
+         double[] windVector = new double[2];
+        Scanner in = new Scanner(System.in);
+        System.out.println("Enter 1 when Ready for take off?");
+
+        int tt = in.nextInt();
+       if (tt != 1){
+           System.out.println("Invalid Number");
+       }
+
+        while (!titanorbit) {
+            if (tt == 1) {
+
+                if (thrust != 100) {
+                    thrust += 1;
+                } else
+                    thrust = 100;
+                leftThrust = getLeftThrust(x);
+                rightThrust= getRightThrust(x);
+
+                System.out.println("Time: " + t + " secs");
+                System.out.println("Height: " + height + " m");
+                System.out.println("Descent rate: " + (velocity*-1) + " m/sec");
+                System.out.println("Change from initial axis: " + (x - 2) + " m");
+                System.out.println("Fuel left: " + fuel + " kg");
+                System.out.println("Thrust percentage: " + thrust + "%");
+                System.out.println("left thrust precentage: " + leftThrust + "%");
+                System.out.println("right thrust precentage: " + rightThrust + "%");
+                System.out.println();
+
+
+                System.out.println();
+
+                // Calculate the acceleration, and how long fuel will last
+
+                a = (GRAVITY - MAX_THRUST * thrust / 100.0);
+
+                time_to_fuel_out = fuel / (MAX_BURN_RATE * thrust / 100.0);
+
+                // calculate time_to_touchdown assuming fuel never runs out
+
+                double discrim = velocity * velocity + 2 * height * a;
+                if (discrim < 0)
+                    time_to_touchdown = INFINITY;
+                else if (Math.abs(a) < SMALL)
+                    time_to_touchdown = height / velocity;
+                else
+                    time_to_touchdown = (velocity - Math.sqrt(discrim)) / -a;
+
+                // Handle the case when fuel will run out first
+
+             /*   if (time_to_fuel_out < time_to_touchdown
+                        && time_to_fuel_out <= TIME_SLICE) {
+
+                    System.out.println("Out of fuel! Free fall! ");
+                    fuel_out = true;
+                    t = t + time_to_fuel_out;
+                    fuel = 0.0;
+                    height = height - time_to_fuel_out * velocity - a * time_to_fuel_out * time_to_fuel_out / 2.0;
+                    velocity = velocity + a * time_to_fuel_out;
+                    a = GRAVITY; //gravity never sleeps!
+                    time_to_touchdown = (velocity - Math.sqrt(velocity * velocity + 2 * height * a)) / -a;
+                }
+                // end if (fuel runs out case)
+*/
+
+                l = (MAX_THRUST * leftThrust);
+                r = (MAX_THRUST * rightThrust);
+                if (height < 0) {
+                    height = 0;
+                }
+                // If not, advance everything one time period and keep going
+
+                t = t + TIME_SLICE;
+                fuel = fuel - TIME_SLICE * MAX_BURN_RATE * thrust / 100.0;
+                oldH = height;
+                almostH = height - TIME_SLICE * velocity - a * TIME_SLICE * TIME_SLICE / 2;
+                   windVector = wind.addWind(oldH, almostH);
+                 x += (windVector[0] - r + l);
+                height = height - TIME_SLICE * velocity - a * TIME_SLICE * TIME_SLICE / 2.0;
+                velocity = velocity + TIME_SLICE * a;
+                if (height > orbitheight) {
+                    titanorbit = true;
+                }
+
+
+            }
+
+        }
+
+        System.out.println(" ");
+        System.out.println(" ");
+        System.out.println(" Congrats you have escaped titans gravity ");
+    }
+
 
 
     public static void main(String[] args) throws IOException {
@@ -629,7 +740,8 @@ public class LunarLander {
         while (true) {
 
             s.timestep = 1;
-            s.freefall(startTime);
+            s.freefall();
+            ;
 
             repaint();
             setBackground(Color.black);
@@ -647,7 +759,7 @@ public class LunarLander {
      public void mouseDragged(MouseEvent e) {
          ASSX = oldASSX + e.getX() - fstX;
          ASSY = oldASSY + e.getY() - fstY;
-     }
+     } 
 
      @Override
      public void mouseMoved(MouseEvent e) {
@@ -697,4 +809,3 @@ public class LunarLander {
      public void keyReleased(KeyEvent e) {
      }
 }
-
