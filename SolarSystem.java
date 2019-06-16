@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.lang.Math;
 import java.util.Iterator;
+import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -51,7 +52,8 @@ public class SolarSystem {
 //        Planet Neptune = new Planet("Neptune", 0.00103, +449.9, 0);
 
 
-    Planet Probe = new Planet("Probe", 0.00000000000000009, -14.6, 0.578, -0.00006275, -0.072585040);
+    //Planet Probe = new Planet("Probe", 0.00000000000000009, -14.5 + 0.01, 0.578, 0.001727 - 0.004, 0.029896 - 0.0034);
+    Planet Probe = new Planet("Probe", 0.00000000000009, -14.5 + 0.01, 0.578, 0.001727 - 0.004, 0.029896 - 0.0034);
        
 //For timestep = 20:
 	   // second accuracy stage reached at velX = -0.00006 / velY = -0.072521
@@ -87,6 +89,17 @@ public class SolarSystem {
         list.add(Titan);
         getAccelerations();
 
+    }
+
+    void print(){
+        for (Planet p : list) {
+            if(p.name == "Probe") System.out.println("Probe: x = " + p.x + " ,y = " + p.y);
+            if(p.name == "Earth") System.out.println("Earth: x = " + p.x + " ,y = " + p.y);
+            if(p.name == "Venus") System.out.println("Venus: x = " + p.x + " ,y = " + p.y);
+            if(p.name == "Jupiter") System.out.println("Jupiter: x = " + p.x + " ,y = " + p.y);
+            if(p.name == "Saturn") System.out.println("Saturn: x = " + p.x + " ,y = " + p.y);
+            if(p.name == "Titan") System.out.println("Titan: x = " + p.x + " ,y = " + p.y);
+        }
     }
 
 
@@ -237,6 +250,8 @@ public class SolarSystem {
         int fstX, fstY;
         SolarSystem s;
 		double startTime = System.currentTimeMillis();
+		double elapsedTime = 0;
+		static double daysToPass;
 
         public SolarGUI() {
             s = new SolarSystem();
@@ -307,10 +322,15 @@ public class SolarSystem {
 		
 		public String timer(){
 			double currentTime = System.currentTimeMillis();
-            double elapsedTime = (currentTime - startTime) / (1000 * (316 / s.timestep)) * 365;
+            elapsedTime = (currentTime - startTime) / (1000 * (316 / s.timestep)) * 365;
 			
 			return "Time: " + (int)(elapsedTime) + " days";
 		}
+
+		public void countTime(){
+            double currentTime = System.currentTimeMillis();
+            elapsedTime = (currentTime - startTime) / (1000 * (316 / s.timestep)) * 365;
+        }
 		
 		public String landingTimer(){
 			return "Landed on Titan after: " + (int)(s.landingTime) + " days";
@@ -327,12 +347,28 @@ public class SolarSystem {
 
         @Override
         public void run() {
-            
-            while (true) {
-                s.timestep = 20;
+            boolean beforeSlingshot = true;
+
+            while (elapsedTime < daysToPass) {
+                s.timestep = 5;
                 s.updatePositions(startTime);
                 repaint();
+                countTime();
                 setBackground(Color.BLACK);
+
+                if(elapsedTime > 147.5 && beforeSlingshot){
+                    for(Planet p1 : s.list){
+                        for(Planet p2 : s.list) {
+
+                            if (p1.name == "Venus" && p2.name == "Probe") {
+                                p2.velX = p2.velX + 0.6 * p1.velX + 0.003;
+                                p2.velY = p2.velY + 0.6 * p1.velY;
+                                System.out.println("Added sligshot");
+                                beforeSlingshot = false;
+                            }
+                        }
+                    }
+                }
 
                 try {
                     Thread.sleep(100);
@@ -341,6 +377,7 @@ public class SolarSystem {
                     e.printStackTrace();
                 }
             }
+           s.print();
         }
 
           
@@ -349,7 +386,9 @@ public class SolarSystem {
             JFrame f = new JFrame("Solar System");
             f.setBounds(0, 0, 800, 800);
             // f.setBackground(b);
-
+            System.out.println("After how many days should I stop?");
+            Scanner scanner = new Scanner(System.in);
+            daysToPass = scanner.nextDouble();
 
             f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
