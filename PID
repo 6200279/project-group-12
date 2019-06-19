@@ -29,7 +29,7 @@ public class PID {
 
 
     /**
-     * Create a MiniPID class object.
+     * Create a PID class object.
      * See setP, setI, setD methods for more detailed parameters.
      * @param p Proportional gain. Large if large difference between setpoint and target.
      * @param i Integral gain.  Becomes large if setpoint cannot reach target quickly.
@@ -41,7 +41,7 @@ public class PID {
     }
 
     /**
-     * Create a MiniPID class object.
+     * Create a PID class object.
      * See setP, setI, setD, setF methods for more detailed parameters.
      * @param p Proportional gain. Large if large difference between setpoint and target.
      * @param i Integral gain.  Becomes large if setpoint cannot reach target quickly.
@@ -69,10 +69,7 @@ public class PID {
         }
         I=i;
         checkSigns();
-        // Implementation note:
-        // This Scales the accumulated error to avoid output errors.
-        // As an example doubling the I term cuts the accumulated error in half, which results in the
-        // output change due to the I term constant during the transition.
+
     }
 
 
@@ -89,8 +86,7 @@ public class PID {
 
     public void setPID(double p, double i, double d){
         P=p;D=d;
-        //Note: the I term has additional calculations, so we need to use it's
-        //specific method for setting it.
+
         setI(i);
         checkSigns();
     }
@@ -105,17 +101,14 @@ public class PID {
      */
     public void setPID(double p, double i, double d,double f){
         P=p;D=d;F=f;
-        //Note: the I term has additional calculations, so we need to use it's
-        //specific method for setting it.
+
         setI(i);
         checkSigns();
     }
 
 
     public void setMaxIOutput(double maximum){
-        // Internally maxError and Izone are similar, but scaled for different purposes.
-        // The maxError is generated for simplifying math, since calculations against
-        // the max error are far more common than changing the I term or Izone.
+
         maxIOutput=maximum;
         if(I!=0){
             maxError=maxIOutput/I;
@@ -133,7 +126,7 @@ public class PID {
         maxOutput=maximum;
         minOutput=minimum;
 
-        // Ensure the bounds of the I term are within the bounds of the allowable output swing
+
         if(maxIOutput==0 || maxIOutput>(maximum-minimum) ){
             setMaxIOutput(maximum-minimum);
         }
@@ -262,10 +255,7 @@ public class PID {
 
 
     private boolean bounded(double value, double min, double max){
-        // Note, this is an inclusive range. This is so tests like
-        // `bounded(constrain(0,0,1),0,1)` will return false.
-        // This is more helpful for determining edge-case behaviour
-        // than <= is.
+
         return (min<value) && (value<max);
     }
 
@@ -285,3 +275,4 @@ public class PID {
         }
     }
 }
+
