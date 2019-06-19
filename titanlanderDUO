@@ -1,4 +1,6 @@
 
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -98,9 +100,11 @@ public class LunarLander {
              velocity = TERMINAL_VELOCITY;
          }
 
-         // System.out.println("Enter Thrust (%)");
-         thrust = getThrust(height,velocity);
 
+         // System.out.println("Enter Thrust (%)");
+         if(height <= 150){
+             thrust = getThrust(height, velocity);
+         }
          leftThrust = getLeftThrust(x);
          rightThrust = getRightThrust(x);
          for (Rover p : list) {
@@ -453,7 +457,39 @@ public class LunarLander {
 
 
     public double openloopthrust(double t){
-        if (t >=395 && t<= 400){
+
+
+        while(velocity >= 0 && height <= 100) {
+
+            if (height < 0)
+                return 0;
+            else if (height >= 100) {
+                return 0;
+            } else if (height >= 50) {
+                return 5;
+            } else if (height >= 25) {
+                return 10;
+
+
+            }
+            else if (height >= 15){
+                return 15;
+            }
+            else if (height >= 10) {
+                return 20;
+            } else if (height >= 5) {
+                return 15;
+            } else if (height >= 2) {
+                return 9;
+            } else if (height == 0) {
+                return 0;
+            }
+
+        }
+
+
+        return  0;}
+      /*  if (t >=395 && t<= 400){
             return 5;
         }
         else if (t>=400 && t<= 403){
@@ -475,83 +511,139 @@ public class LunarLander {
             return 9;
         }
         else return 0;
+*/
 
-    }
 
 
 
  public double getThrust(double height, double velocity){
+     PID PID;
+
+     PID = new PID(5, 0.01, 0.4);
+     PID.setOutputLimits(100);
+     //miniPID.setMaxIOutput(2);
+     //miniPID.setOutputRampRate(3);
+     //miniPID.setOutputFilter(.3);
+     //  miniPID.setSetpointRange();
+
+     double target= 0;
+
+     double actual=velocity;
+     double output=0;
+
+     // miniPID.setSetpoint(0);
+     PID.setSetpoint(target);
+
+     System.err.printf("Target\tActual\tOutput\tError\n");
+     //System.err.printf("Output\tP\tI\tD\n");
+    if(!(height >0 && height<1)) {
+        // Position based test code
+        for (int i = 0; i < 100; i++) {
 
 
-    while(velocity >= 0 && height <= 100) {
+            output = PID.getOutput(actual, target);
+            actual = actual + output;
 
-        if (height < 0)
-                return 0;
-         else if (height >= 100) {
-             return 0;
-         } else if (height >= 50) {
-             return 5;
-         } else if (height >= 25) {
-            return 10;
+           //System.out.printf("Current: %3.2f , Actual: %3.2f, Error: %3.2f\n",actual, output, (target-actual));
+          System.err.printf("%3.2f\t%3.2f\t%3.2f\t%3.2f\n", target, actual, output, (target - actual));
+            return (output * -1);
 
-
-         }
-         else if (height >= 15){
-             return 15;
         }
-         else if (height >= 10) {
-             return 20;
-         } else if (height >= 5) {
-             return 15;
-         } else if (height >= 2) {
-             return 9;
-         } else if (height == 0) {
-             return 0;
+    }
+
+
+
+
+
+
+
+
+
+ return 0;}
+
+  public double  getLeftThrust(double x ){
+
+     PID PID;
+
+     PID = new PID(0.099, 0.01, 0.4);
+     PID.setOutputLimits(10);
+     //miniPID.setMaxIOutput(2);
+     //miniPID.setOutputRampRate(3);
+     //miniPID.setOutputFilter(.3);
+     //  miniPID.setSetpointRange();
+
+     double target= 0;
+
+     double actual=x;
+     double output=0;
+
+     // miniPID.setSetpoint(0);
+     PID.setSetpoint(target);
+
+    // System.err.printf("Target\tActual\tOutput\tError\n");
+     //System.err.printf("Output\tP\tI\tD\n");
+     if(!(height >0 && height<1)) {
+         // Position based test code
+         for (int i = 0; i < 10; i++) {
+
+
+             output = PID.getOutput(actual, target);
+             actual = actual + output;
+
+             //System.out.printf("Current: %3.2f , Actual: %3.2f, Error: %3.2f\n",actual, output, (target-actual));
+             //System.err.printf("%3.2f\t%3.2f\t%3.2f\t%3.2f\n", target, actual, output, (target - actual));
+             return (output * 1);
+
          }
 
      }
 
 
- return  0;}
-
- public double getLeftThrust(double x ){
-        if(x < -100){
-            return 5;
-        }
-        else if (x < - 25){
-            return 2.5;
-        }
-        else if ( x <- 15){
-            return 1.5;
-        }
-
-        else if  (x < 0) {
-            return 1.6;
-        }
-
-            else return 0;
 
 
+return 0; }
 
- }
     public double getRightThrust(double x ) {
-        if (x > 100) {
-            return 5;
-        }
 
-        else if (x > 25) {
-            return 2.5 ;
+            PID PID;
 
-        }
-        else if (x>15){
-            return 1.6;
-        }
-            else if (x > 0) {
-            return 1.5;
-        } else return 0;
+            PID = new PID(0.048, 0.01, 0.4);
+            PID.setOutputLimits(100);
+            //miniPID.setMaxIOutput(2);
+            //miniPID.setOutputRampRate(3);
+            //miniPID.setOutputFilter(.3);
+            //  miniPID.setSetpointRange();
 
-    }
- public void setThrust( int thrust){
+            double target = 0;
+
+            double actual = velocity;
+            double output = 0;
+
+            // miniPID.setSetpoint(0);
+            PID.setSetpoint(target);
+
+          //  System.err.printf("Target\tActual\tOutput\tError\n");
+            //System.err.printf("Output\tP\tI\tD\n");
+            if (!(height > 0 && height < 1)) {
+                // Position based test code
+                for (int i = 0; i < 100; i++) {
+
+
+                    output = PID.getOutput(actual, target);
+                    actual = actual + output;
+
+                    //System.out.printf("Current: %3.2f , Actual: %3.2f, Error: %3.2f\n",actual, output, (target-actual));
+            //        System.err.printf("%3.2f\t%3.2f\t%3.2f\t%3.2f\n", target, actual, output, (target - actual));
+                //    return (output * -1);
+
+                }
+            }
+
+    return 0;}
+
+
+
+ public void setThrust( double thrust){
         this.thrust = thrust;
 
  }
@@ -588,7 +680,7 @@ public class LunarLander {
 
                 System.out.println("Time: " + t + " secs");
                 System.out.println("Height: " + height + " m");
-                System.out.println("Descent rate: " + (velocity*-1) + " m/sec");
+                System.out.println("take off velocity : " + (velocity*-1) + " m/sec");
                 System.out.println("Change from initial axis: " + (x - 2) + " m");
                 System.out.println("Fuel left: " + fuel + " kg");
                 System.out.println("Thrust percentage: " + thrust + "%");
@@ -809,3 +901,4 @@ public class LunarLander {
      public void keyReleased(KeyEvent e) {
      }
 }
+
