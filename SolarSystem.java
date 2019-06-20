@@ -29,44 +29,53 @@ public class SolarSystem {
     double landingTime = 0;
     boolean landed = false;
     boolean launchtime = false;
+    boolean beforeSlingshot = true;
 
     double probeVel;
     double probeVelRT;
 
     public SolarSystem() {
 
+        //Planet Sun = new Planet("Sun", 19.89, 0.368, 0.0008963);
+        Planet Sun = new Planet("Sun", 19.89, 0.3678221137960299, 0.000506513009907229);
+        //Planet Earth = new Planet("Earth", 0.00005974, -14.5, 0.578, 0.001727, 0.029896);
+        Planet Earth = new Planet("Earth", 0.00005974, -3.8643164599613815, 14.054622219886541, 0.02906675203296486, 0.008754256468909554);
+        //Planet Moon = new Planet("Moon", 0.0000007342, -14.5 + 0.040550, 0.578, 0.001727, 0.029896);
+        Planet Moon = new Planet("Moon", 0.0000007342, -3.8643164599613815 + 0.040550, 14.054622219886541, 0.02906675203296486, 0.008754256468909554);
 
-        Planet Sun = new Planet("Sun", 19.89, 0.368, 0.0008963);
-        Planet Earth = new Planet("Earth", 0.00005974, -14.5, 0.578, 0.001727, 0.029896);
-        Planet Moon = new Planet("Moon", 0.0000007342, -14.5 + 0.040550, 0.578, 0.001727, 0.029896);
 
+        //Planet Mercury = new Planet("Mercury", 0.00000330, -2.67, -6.03, -0.0369, 0.015334);
+        Planet Mercury = new Planet("Mercury", 0.00000330, 2.8186014603299507, -5.365631121439562, -0.03769011210531946, -0.027289247708475663);
+        //Planet Venus = new Planet("Venus", 0.0000487, -0.931, -10.8, -0.0346, 0.0042);
+        Planet Venus = new Planet("Venus", 0.0000487, -9.130083718500613, 5.165041503105213, 0.016849259889191028, 0.030757533047872876);
+        //Planet Mars = new Planet("Mars", 0.00000642, 2.3, 23.337, 0.023155, -0.00405);
+        Planet Mars = new Planet("Mars", 0.00000642, 14.989634377488617, 16.529880378105624, 0.01716276922149229, -0.018088952769549457);
+        //Planet Jupiter = new Planet("Jupiter", 0.01899, -23.487, -75.996, -0.0123, 0.003305);
+        Planet Jupiter = new Planet("Jupiter", 0.01899, -30.802542064225953, -73.63632750376833, -0.011865198931079722, 0.004487067873690785);
+       
 
-        Planet Mercury = new Planet("Mercury", 0.00000330, -2.67, -6.03, -0.0369, 0.015334);
-        Planet Venus = new Planet("Venus", 0.0000487, -0.931, -10.8, -0.0346, 0.0042);
-//		Planet Earth = new Planet("Earth",0.00005974, 14.9,0);
-        Planet Mars = new Planet("Mars", 0.00000642, 2.3, 23.337, 0.023155, -0.00405);
-        Planet Jupiter = new Planet("Jupiter", 0.01899, -23.487, -75.996, -0.0123, 0.003305);
-        //   Planet Titan2= new Planet( "Titan2",0.0000013452,-142.4 + 0.125,0,0,   )
-
-        Planet Titan = new Planet("Titan", 0.0000013452, 35.754 - 0.125, -146.157, -0.00887, -0.00224);
-        Planet Saturn = new Planet("Saturn", 0.00568, 35.754, -146.157, -0.00887, -0.00224);
-        // Planet Titan2 = new Planet("Titan",0.00568, 35.754, -146.157, -0.00887, -0.00224);
+        //Planet Titan = new Planet("Titan", 0.0000013452, 35.754 - 0.125, -146.157, -0.00887, -0.00224);
+        Planet Titan = new Planet("Titan", 0.0000013452, 30.36350217953142 - 0.125, -147.40816905813315, -0.008947758155843083, -0.0018930382514829032);
+        //Planet Saturn = new Planet("Saturn", 0.00568, 35.754, -146.157, -0.00887, -0.00224);
+        Planet Saturn = new Planet("Saturn", 0.00568, 30.36350217953142, -147.40816905813315, -0.008947758155843083, -0.0018930382514829032);
+        
 
 //        Planet Uranus = new Planet("Uranus", 0.000866, +287.2, 0);
 //        Planet Neptune = new Planet("Neptune", 0.00103, +449.9, 0);
 
 
-        //Planet Probe = new Planet("Probe", 0.00000000000000009, -14.5 + 0.01, 0.578, 0.001727 - 0.004, 0.029896 - 0.0034);
-        Planet Probe = new Planet("Probe", 0.00000000000009, -14.5 + 0.01, 0.578, 0.001727 - 0.004, 0.029896 - 0.0034);
+        Planet Probe = new Planet("Probe", 0.00000000009, -3.8643164599613815 + 0.01, 14.054622219886541, 0.02906675203296486 - 0.0042, 0.008754256468909554 - 0.0015);
+        //Planet Probe = new Planet("Probe", 0.00000000009, -14.5 + 0.01, 0.578, 0.001727 - 0.004, 0.029896 - 0.0034);
 
 
 //For timestep = 20:
-        // second accuracy stage reached at velX = -0.00006 / velY = -0.072521
+	   // second accuracy stage reached at velX = -0.00006 / velY = -0.072521
         // third accuracy stage reached at velx = -0.000061 / velY = -0.072513
         // fourth accuracy stage reachted at velX = -0.0000616 / velY = -0.072512469
-//-0.072512488
+       
 
-        list2 = new ArrayList<Probe>();
+	   list2 = new ArrayList<Probe>();
+        
 
 
         list = new ArrayList<Planet>();
@@ -78,24 +87,15 @@ public class SolarSystem {
         list.add(Jupiter);
         list.add(Saturn);
         list.add(Probe);
-
-
 //        list.add(Uranus);
         //       list.add(Neptune);
         //  list.add(Titan);
 
 
 
-/*        for (Planet p : list) {
-            if (p.name != "Sun")
-                p.velY = Math.sqrt(G * Sun.mass / Math.abs(p.x - Sun.x));
-            System.out.println(p.name+ " = " + p.velY);
-            if (p.x > Sun.x)
-                p.velY = -p.velY;
-        }*/
 
 
-//		list.add(Earth);
+
         Moon.velY = Earth.velY + 0.000964;
         Titan.velY = Saturn.velY - 0.00558;
         list.add(Moon);
@@ -186,8 +186,7 @@ public class SolarSystem {
         move();
         getAccelerations();
         accelerate();
-
-
+        if(beforeSlingshot) addSlingshot();
         //moveprobe();
         collion(startTime);
         if (collionstop() == true) {
@@ -209,6 +208,42 @@ public class SolarSystem {
 
     }
 
+    void addSlingshot(){
+        for(Planet p1 : list){
+            for(Planet p2 : list) {
+
+                if (p1.name == "Venus" && p2.name == "Probe") {
+                    if(Math.abs(p1.y-p2.y) < 0.01) {
+                        p2.velX = p2.velX + 0.6 * p1.velX + 0.0135427;  //to improve proximity, change this number
+                        p2.velY = p2.velY + 0.6 * p1.velY;
+                        System.out.println("Added sligshot");
+                        beforeSlingshot = false;
+                    }
+                }
+            }
+        }
+    }
+
+    public double calculateAngle(){
+        for (Planet p1 : list){
+            for (Planet p2 : list){
+                if(p1.name == "Earth" && p2.name == "Venus"){
+                    double angle1 = Math.atan2(p1.y - 0, p1.x - 0);
+                    double angle2 = Math.atan2(p2.y - 0, p2.x - 0);
+                    double angle = Math.toDegrees(angle2 - angle1);
+                    if(angle < 0){
+                        angle += 360;
+                    }
+                    return angle;
+                }
+
+
+            }
+        }
+
+
+        return 0;
+    }
 
     boolean collionstop() {
         for (Planet p1 : list) {
@@ -418,7 +453,6 @@ class SolarGUI extends JPanel implements Runnable, MouseMotionListener, MouseLis
     @Override
     public void run() {
         // TODO Auto-generated method stub
-        boolean beforeSlingshot = true;
 
         while (elapsedTime < daysToPass) {
             s.timestep = 5;
@@ -426,20 +460,6 @@ class SolarGUI extends JPanel implements Runnable, MouseMotionListener, MouseLis
             repaint();
             countTime();
             setBackground(Color.BLACK);
-            if(elapsedTime > 147.5 && beforeSlingshot){
-                for(Planet p1 : s.list){
-                    for(Planet p2 : s.list) {
-
-                        if (p1.name == "Venus" && p2.name == "Probe") {
-                            p2.velX = p2.velX + 0.6 * p1.velX + 0.003;
-                            p2.velY = p2.velY + 0.6 * p1.velY;
-                            System.out.println("Added sligshot");
-                            beforeSlingshot = false;
-                        }
-                    }
-                }
-            }
-
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
