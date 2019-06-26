@@ -1,3 +1,5 @@
+package solarSystem;
+
 import java.util.LinkedList;
 
 
@@ -50,5 +52,14 @@ public class Planet {String name;
     }
 
 
-    }
+	public double getX() {
+		return x;
+	}
 
+
+	public double getY() {
+		return y;
+	}
+
+
+    }

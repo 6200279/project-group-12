@@ -1,3 +1,5 @@
+package solarSystem;
+
 import java.util.Random;
 
 /**

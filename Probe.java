@@ -1,3 +1,5 @@
+package solarSystem;
+
 public class Probe {
     String name;
     double mass,x , y;

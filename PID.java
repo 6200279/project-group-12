@@ -1,13 +1,16 @@
+package solarSystem;
+
 public class PID {
 
-    private double Proportinal=0;
-    private double Intergral=0;
-    private double Derivative=0;
+
+    private double P=0;
+    private double I=0;
+    private double D=0;
     private double F=0;
 
-    private double maxIntergral=0;
+    private double maxIOutput=0;
     private double maxError=0;
-    private double Error=0;
+    private double errorSum=0;
 
     private double maxOutput=0;
     private double minOutput=0;
@@ -24,7 +27,7 @@ public class PID {
 
     private double outputFilter=0;
 
-    private double Range=0;
+    private double setpointRange=0;
 
 
     /**
@@ -35,28 +38,60 @@ public class PID {
      * @param d Derivative gain. Responds quickly to large changes in error. Small values prevents P and I terms from causing overshoot.
      */
     public PID(double p, double i, double d){
-        Proportinal=p; Intergral=i; Derivative=d;
+        P=p; I=i; D=d;
+        checkSigns();
+    }
+
+    /**
+     * Create a PID class object.
+     * See setP, setI, setD, setF methods for more detailed parameters.
+     * @param p Proportional gain. Large if large difference between setpoint and target.
+     * @param i Integral gain.  Becomes large if setpoint cannot reach target quickly.
+     * @param d Derivative gain. Responds quickly to large changes in error. Small values prevents P and I terms from causing overshoot.
+     * @param f Feed-forward gain. Open loop "best guess" for the output should be. Only useful if setpoint represents a rate.
+     */
+    public PID(double p, double i, double d, double f){
+        P=p; I=i; D=d; F=f;
         checkSigns();
     }
 
 
-
+    public void setP(double p){
+        P=p;
+        checkSigns();
+    }
 
 
     public void setI(double i){
-        if(Intergral!=0){
-            Error=Error*Intergral/i;
+        if(I!=0){
+            errorSum=errorSum*I/i;
         }
-        if(maxIntergral!=0){
-            maxError=maxIntergral/i;
+        if(maxIOutput!=0){
+            maxError=maxIOutput/i;
         }
-        Intergral=i;
+        I=i;
         checkSigns();
 
     }
 
 
+    public void setD(double d){
+        D=d;
+        checkSigns();
+    }
 
+    public void setF(double f){
+        F=f;
+        checkSigns();
+    }
+
+
+    public void setPID(double p, double i, double d){
+        P=p;D=d;
+
+        setI(i);
+        checkSigns();
+    }
 
     /**
      * Configure the PID object.
@@ -67,7 +102,7 @@ public class PID {
      * @param f Feed-forward gain. Open loop "best guess" for the output should be. Only useful if setpoint represents a rate.
      */
     public void setPID(double p, double i, double d,double f){
-        Proportinal=p;Derivative=d;F=f;
+        P=p;D=d;F=f;
 
         setI(i);
         checkSigns();
@@ -76,9 +111,9 @@ public class PID {
 
     public void setMaxIOutput(double maximum){
 
-        maxIntergral=maximum;
-        if(Intergral!=0){
-            maxError=maxIntergral/Intergral;
+        maxIOutput=maximum;
+        if(I!=0){
+            maxError=maxIOutput/I;
         }
     }
 
@@ -94,12 +129,15 @@ public class PID {
         minOutput=minimum;
 
 
-        if(maxIntergral==0 || maxIntergral>(maximum-minimum) ){
+        if(maxIOutput==0 || maxIOutput>(maximum-minimum) ){
             setMaxIOutput(maximum-minimum);
         }
     }
 
 
+    public void  setDirection(boolean reversed){
+        this.reversed=reversed;
+    }
 
 
     public void setSetpoint(double setpoint){
@@ -116,8 +154,8 @@ public class PID {
         this.setpoint=setpoint;
 
 
-        if(Range!=0){
-            setpoint=constrain(setpoint,actual-Range,actual+Range);
+        if(setpointRange!=0){
+            setpoint=constrain(setpoint,actual-setpointRange,actual+setpointRange);
         }
 
         double error=setpoint-actual;
@@ -125,7 +163,7 @@ public class PID {
 
         Foutput=F*setpoint;
 
-        Poutput=Proportinal*error;
+        Poutput=P*error;
 
         if(firstRun){
             lastActual=actual;
@@ -134,13 +172,13 @@ public class PID {
         }
 
 
-        Doutput= -Derivative*(actual-lastActual);
+        Doutput= -D*(actual-lastActual);
         lastActual=actual;
 
 
-        Ioutput=Intergral*error;
-        if(maxIntergral!=0){
-            Ioutput=constrain(Ioutput,-maxIntergral,maxIntergral);
+        Ioutput=I*errorSum;
+        if(maxIOutput!=0){
+            Ioutput=constrain(Ioutput,-maxIOutput,maxIOutput);
         }
 
 
@@ -148,18 +186,18 @@ public class PID {
 
 
         if(minOutput!=maxOutput && !bounded(output, minOutput,maxOutput) ){
-            Error=error;
+            errorSum=error;
 
         }
         else if(outputRampRate!=0 && !bounded(output, lastOutput-outputRampRate,lastOutput+outputRampRate) ){
-            Error=error;
+            errorSum=error;
         }
-        else if(maxIntergral!=0){
-            Error=constrain(Error+error,-maxError,maxError);
+        else if(maxIOutput!=0){
+            errorSum=constrain(errorSum+error,-maxError,maxError);
 
         }
         else{
-            Error+=error;
+            errorSum+=error;
         }
 
 
@@ -179,14 +217,37 @@ public class PID {
     }
 
 
-    public void reset(){
-        firstRun=true;
-        Error=0;
+    public double getOutput(){
+        return getOutput(lastActual,setpoint);
     }
 
 
+    public double getOutput(double actual){
+        return getOutput(actual,setpoint);
+    }
 
 
+    public void reset(){
+        firstRun=true;
+        errorSum=0;
+    }
+
+
+    public void setOutputRampRate(double rate){
+        outputRampRate=rate;
+    }
+
+
+    public void setSetpointRange(double range){
+        setpointRange=range;
+    }
+
+
+    public void setOutputFilter(double strength){
+        if(strength==0 || bounded(strength,0,1)){
+            outputFilter=strength;
+        }
+    }
 
     private double constrain(double value, double min, double max){
         if(value > max){ return max;}
@@ -203,15 +264,15 @@ public class PID {
 
     private void checkSigns(){
         if(reversed){  // all values should be below zero
-            if(Proportinal>0) Proportinal*=-1;
-            if(Intergral>0) Intergral*=-1;
-            if(Derivative>0) Derivative*=-1;
+            if(P>0) P*=-1;
+            if(I>0) I*=-1;
+            if(D>0) D*=-1;
             if(F>0) F*=-1;
         }
         else{  // all values should be above zero
-            if(Proportinal<0) Proportinal*=-1;
-            if(Intergral<0) Intergral*=-1;
-            if(Derivative<0) Derivative*=-1;
+            if(P<0) P*=-1;
+            if(I<0) I*=-1;
+            if(D<0) D*=-1;
             if(F<0) F*=-1;
         }
     }
